@@ -1,0 +1,76 @@
+<div class="form-container">
+  <form [formGroup]="itemForm" (ngSubmit)="onSubmit()" novalidate>
+    <h3>{{ itemToEdit ? "Editar Item" : "Criar Novo Item" }}</h3>
+
+    <div class="form-group">
+      <label for="title">Título</label>
+      <input
+        id="title"
+        type="text"
+        formControlName="title"
+        placeholder="Nome do item"
+      />
+      <div
+        *ngIf="title?.invalid && (title?.dirty || title?.touched)"
+        class="validation-error"
+      >
+        <small *ngIf="title?.errors?.['required']"
+          >O título é obrigatório.</small
+        >
+        <small *ngIf="title?.errors?.['maxlength']"
+          >O título não pode ter mais de 100 caracteres.</small
+        >
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Descrição</label>
+      <textarea
+        id="description"
+        formControlName="description"
+        placeholder="Descreva o item"
+        rows="4"
+      ></textarea>
+      <div
+        *ngIf="
+          description?.invalid && (description?.dirty || description?.touched)
+        "
+        class="validation-error"
+      >
+        <small *ngIf="description?.errors?.['required']"
+          >A descrição é obrigatória.</small
+        >
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="photo">Foto (opcional)</label>
+      <input
+        id="photo"
+        type="file"
+        (change)="onFileChange($event)"
+        accept="image/png, image/jpeg"
+      />
+      <div class="preview-container" *ngIf="imagePreview">
+        <img
+          [src]="imagePreview"
+          alt="Pré-visualização da imagem"
+          class="image-preview"
+        /><button
+          type="button"
+          class="remove-photo-btn"
+          (click)="removeImage()"
+        ></button>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="secondary" (click)="close()">
+        Cancelar
+      </button>
+      <button type="submit" class="primary" [disabled]="isSubmitting">
+        {{ isSubmitting ? "Salvando..." : "Salvar" }}
+      </button>
+    </div>
+  </form>
+</div>

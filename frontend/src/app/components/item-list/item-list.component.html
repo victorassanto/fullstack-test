@@ -1,0 +1,115 @@
+<div class="toolbar">
+  <h2>Lista de Itens</h2>
+  <button class="primary" (click)="showForm = true; currentItem = null">
+    Novo Item
+  </button>
+</div>
+
+<!-- Barra de Filtros e Ordenação -->
+<div class="filter-bar">
+  <div class="filter-inputs">
+    <input
+      type="text"
+      placeholder="Filtrar por título..."
+      [(ngModel)]="filters.title"
+      (keyup.enter)="applyFilters()"
+    />
+    <input
+      type="text"
+      placeholder="Filtrar por descrição..."
+      [(ngModel)]="filters.description"
+      (keyup.enter)="applyFilters()"
+    />
+    <button class="primary" (click)="applyFilters()">Filtrar</button>
+    <button class="secondary" (click)="clearFilters()">Limpar</button>
+  </div>
+  <div class="sort-options">
+    <span>Ordenar por:</span>
+    <button (click)="changeSort('title')" [class.active]="sort.by === 'title'">
+      Título {{ sort.by === "title" ? (sort.order === "asc" ? "▲" : "▼") : "" }}
+    </button>
+    <button
+      (click)="changeSort('createdAt')"
+      [class.active]="sort.by === 'createdAt'"
+    >
+      Data
+      {{ sort.by === "createdAt" ? (sort.order === "asc" ? "▲" : "▼") : "" }}
+    </button>
+  </div>
+</div>
+
+<!-- Formulário Modal -->
+<div class="modal-overlay" *ngIf="showForm">
+  <app-item-form [itemToEdit]="currentItem" (formClose)="onFormClose($event)">
+  </app-item-form>
+</div>
+
+<!-- Notificação -->
+<div
+  class="notification"
+  [ngClass]="notification.type"
+  *ngIf="notification.message"
+>
+  {{ notification.message }}
+</div>
+
+<!-- Estado de Carregamento -->
+<div *ngIf="isLoading" class="loading">Carregando itens...</div>
+
+<!-- Estado de Erro -->
+<div *ngIf="error && !isLoading" class="error">
+  <p>
+    Ocorreu um erro ao buscar os itens. Verifique se o backend está rodando.
+  </p>
+  <button (click)="loadItems()">Tentar Novamente</button>
+</div>
+
+<!-- Lista de Itens -->
+<div
+  class="item-list-container"
+  *ngIf="!isLoading && !error && paginatedItems.data.length > 0"
+>
+  <div class="item-card" *ngFor="let item of paginatedItems.data">
+    <img
+      [src]="getImageUrl(item.photoUrl)"
+      alt="Foto de {{ item.title }}"
+      class="item-photo"
+    />
+    <div class="item-content">
+      <h3>{{ item.title }}</h3>
+      <p>{{ item.description }}</p>
+      <small>Criado em: {{ item.createdAt | date : "dd/MM/yyyy HH:mm" }}</small>
+    </div>
+    <div class="item-actions">
+      <button class="edit" (click)="editItem(item)">Editar</button>
+      <button class="delete" (click)="deleteItem(item._id)">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Estado Vazio -->
+<div
+  *ngIf="!isLoading && !error && paginatedItems.data.length === 0"
+  class="empty-state"
+>
+  <p>Nenhum item encontrado com os filtros atuais.</p>
+</div>
+
+<!-- Paginação -->
+<div class="pagination" *ngIf="!isLoading && paginatedItems.totalPages > 1">
+  <button
+    [disabled]="paginatedItems.page === 1"
+    (click)="changePage(paginatedItems.page - 1)"
+  >
+    Anterior
+  </button>
+  <span
+    >Página {{ paginatedItems.page }} de {{ paginatedItems.totalPages }}</span
+  >
+  <button
+    [disabled]="paginatedItems.page === paginatedItems.totalPages"
+    (click)="changePage(paginatedItems.page + 1)"
+  >
+    Próxima
+  </button>
+</div>
