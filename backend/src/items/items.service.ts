@@ -74,7 +74,12 @@ export class ItemsService {
     }
 
     const [data, total] = await Promise.all([
-      this.itemModel.find(filterQuery).skip(skip).limit(Number(limit)).exec(),
+      this.itemModel
+        .find(filterQuery)
+        .sort(sortQuery)
+        .skip(skip)
+        .limit(Number(limit))
+        .exec(),
       this.itemModel.countDocuments(filterQuery),
     ]);
 
